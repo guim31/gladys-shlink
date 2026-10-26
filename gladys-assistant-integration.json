@@ -1,177 +1,573 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Shlink",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Visits of your Shlink short links in Gladys, with a scene on each new visit.",
+    "fr": "Visites de vos liens courts Shlink dans Gladys, avec une scène à chaque nouvelle visite.",
+    "de": "Besuche deiner Shlink-Kurzlinks in Gladys, mit einer Szene bei jedem neuen Besuch.",
+    "es": "Visitas de sus enlaces cortos de Shlink en Gladys, con una escena en cada nueva visita."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-shlink:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-shlink/main/cover.png",
+  "categories": ["network", "servers"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Shlink server",
+        "fr": "Votre serveur Shlink",
+        "de": "Dein Shlink-Server",
+        "es": "Su servidor Shlink"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "The address of your Shlink server (the one of the short links) and an API key: run shlink api-key:generate on the server. Then add the server and the links to follow from the Discover tab.",
+        "fr": "L'adresse de votre serveur Shlink (celle des liens courts) et une clé d'API : lancez shlink api-key:generate sur le serveur. Ajoutez ensuite le serveur et les liens à suivre depuis l'onglet Découverte.",
+        "de": "Die Adresse deines Shlink-Servers (die der Kurzlinks) und ein API-Schlüssel: Führe shlink api-key:generate auf dem Server aus. Lege dann den Server und die zu verfolgenden Links im Tab „Entdecken“ an.",
+        "es": "La dirección de su servidor Shlink (la de los enlaces cortos) y una clave de API: ejecute shlink api-key:generate en el servidor. Después añada el servidor y los enlaces a seguir desde la pestaña Descubrir."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-shlink/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Einrichtungsanleitung",
+            "es": "Guía de instalación"
+          }
+        },
+        {
+          "url": "https://shlink.io/documentation/api-docs/",
+          "label": {
+            "en": "Shlink API",
+            "fr": "API de Shlink",
+            "de": "Shlink-API",
+            "es": "API de Shlink"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "url",
+      "type": "string",
+      "label": {
+        "en": "Shlink address",
+        "fr": "Adresse de Shlink",
+        "de": "Shlink-Adresse",
+        "es": "Dirección de Shlink"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "description": {
+        "en": "The address of your Shlink server, the one the short links use.",
+        "fr": "L'adresse de votre serveur Shlink, celle qu'utilisent les liens courts.",
+        "de": "Die Adresse deines Shlink-Servers, die deine Kurzlinks nutzen.",
+        "es": "La dirección de su servidor Shlink, la que usan los enlaces cortos."
+      },
+      "placeholder": {
+        "en": "e.g. http://192.168.1.10:8080",
+        "fr": "ex. http://192.168.1.10:8080",
+        "de": "z. B. http://192.168.1.10:8080",
+        "es": "p. ej. http://192.168.1.10:8080"
+      },
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "api_key",
+      "type": "secret",
+      "label": {
+        "en": "API key",
+        "fr": "Clé d'API",
+        "de": "API-Schlüssel",
+        "es": "Clave de API"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Created by shlink api-key:generate. A key limited to a domain or to its own links sees only those.",
+        "fr": "Créée par shlink api-key:generate. Une clé limitée à un domaine ou à ses propres liens ne voit qu'eux.",
+        "de": "Erstellt mit shlink api-key:generate. Ein auf eine Domain oder eigene Links beschränkter Schlüssel sieht nur diese.",
+        "es": "Creada con shlink api-key:generate. Una clave limitada a un dominio o a sus propios enlaces solo ve esos."
+      },
+      "required": true
     },
     {
-      "key": "unit",
+      "key": "options",
+      "type": "section",
+      "label": {
+        "en": "Options",
+        "fr": "Options",
+        "de": "Optionen",
+        "es": "Opciones"
+      }
+    },
+    {
+      "key": "poll_interval",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle de rafraîchissement",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
+      "description": {
+        "en": "How often Shlink is read: four API requests, and two per link added to Gladys.",
+        "fr": "À quelle fréquence Shlink est lu : quatre requêtes d'API, et deux par lien ajouté à Gladys.",
+        "de": "Wie oft Shlink gelesen wird: vier API-Anfragen, und zwei pro in Gladys angelegtem Link.",
+        "es": "Con qué frecuencia se lee Shlink: cuatro peticiones de API, y dos por enlace añadido a Gladys."
+      },
       "required": false,
-      "default": "celsius",
+      "default": "60",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "30",
+          "label": {
+            "en": "30 seconds",
+            "fr": "30 secondes",
+            "de": "30 Sekunden",
+            "es": "30 segundos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "1 minute",
+            "fr": "1 minute",
+            "de": "1 Minute",
+            "es": "1 minuto"
+          }
+        },
+        {
+          "value": "120",
+          "label": {
+            "en": "2 minutes",
+            "fr": "2 minutes",
+            "de": "2 Minuten",
+            "es": "2 minutos"
+          }
+        },
+        {
+          "value": "300",
+          "label": {
+            "en": "5 minutes",
+            "fr": "5 minutes",
+            "de": "5 Minuten",
+            "es": "5 minutos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "include_bots",
+      "type": "boolean",
+      "label": {
+        "en": "Bot visits fire \"New visit\"",
+        "fr": "Les robots déclenchent « Nouvelle visite »",
+        "de": "Bot-Besuche lösen „Neuer Besuch“ aus",
+        "es": "Los robots activan «Nueva visita»"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Off: the visits Shlink flags as bots (crawlers, link previews) fire no scene. The figures never count them.",
+        "fr": "Désactivé : les visites que Shlink marque comme robots (robots d'indexation, aperçus de liens) ne déclenchent aucune scène. Les chiffres ne les comptent jamais.",
+        "de": "Aus: Besuche, die Shlink als Bots markiert (Crawler, Linkvorschauen), lösen keine Szene aus. Die Zahlen zählen sie nie.",
+        "es": "Desactivado: las visitas que Shlink marca como robots (rastreadores, vistas previas de enlaces) no activan ninguna escena. Las cifras nunca las cuentan."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": false
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
+      "description": {
+        "en": "Language of the feature names (set when a device is added) and of the scene results.",
+        "fr": "Langue des noms des fonctionnalités (fixés à l'ajout d'un appareil) et des résultats de scène.",
+        "de": "Sprache der Funktionsnamen (beim Anlegen eines Geräts festgelegt) und der Szenen-Ergebnisse.",
+        "es": "Idioma de los nombres de las funciones (fijados al añadir un dispositivo) y de los resultados de escena."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "new_visit",
+      "label": {
+        "en": "New visit",
+        "fr": "Nouvelle visite",
+        "de": "Neuer Besuch",
+        "es": "Nueva visita"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A short link added to Gladys is visited (bots excluded unless the option says otherwise). Country and referring site when Shlink knows them.",
+        "fr": "Un lien court ajouté à Gladys est visité (robots exclus, sauf option contraire). Pays et site d'origine quand Shlink les connaît.",
+        "de": "Ein in Gladys angelegter Kurzlink wird besucht (Bots ausgenommen, außer per Option). Land und verweisende Website, wenn Shlink sie kennt.",
+        "es": "Se visita un enlace corto añadido a Gladys (robots excluidos salvo opción contraria). País y sitio de origen cuando Shlink los conoce."
       },
       "fields": [
         {
           "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
           "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "source": "devices",
+          "label": {
+            "en": "Links (empty: any)",
+            "fr": "Liens (vide : tous)",
+            "de": "Links (leer: alle)",
+            "es": "Enlaces (vacío: todos)"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "link",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Link name",
+            "fr": "Nom du lien",
+            "de": "Name des Links",
+            "es": "Nombre del enlace"
+          }
+        },
+        {
+          "key": "short_url",
+          "type": "string",
+          "label": {
+            "en": "Short address",
+            "fr": "Adresse courte",
+            "de": "Kurzadresse",
+            "es": "Dirección corta"
+          }
+        },
+        {
+          "key": "long_url",
+          "type": "string",
+          "label": {
+            "en": "Target address",
+            "fr": "Adresse cible",
+            "de": "Zieladresse",
+            "es": "Dirección de destino"
+          }
+        },
+        {
+          "key": "country",
+          "type": "string",
+          "label": {
+            "en": "Country",
+            "fr": "Pays",
+            "de": "Land",
+            "es": "País"
+          }
+        },
+        {
+          "key": "country_code",
+          "type": "string",
+          "label": {
+            "en": "Country code",
+            "fr": "Code du pays",
+            "de": "Ländercode",
+            "es": "Código de país"
+          }
+        },
+        {
+          "key": "referer",
+          "type": "string",
+          "label": {
+            "en": "Referring site",
+            "fr": "Site d'origine",
+            "de": "Verweisende Website",
+            "es": "Sitio de origen"
+          }
+        },
+        {
+          "key": "visits_today",
+          "type": "number",
+          "label": {
+            "en": "Visits today",
+            "fr": "Visites aujourd'hui",
+            "de": "Besuche heute",
+            "es": "Visitas hoy"
+          }
+        },
+        {
+          "key": "bot",
+          "type": "number",
+          "label": {
+            "en": "Bot (1) or not (0)",
+            "fr": "Robot (1) ou non (0)",
+            "de": "Bot (1) oder nicht (0)",
+            "es": "Robot (1) o no (0)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "server_unreachable",
+      "label": {
+        "en": "Shlink unreachable",
+        "fr": "Shlink injoignable",
+        "de": "Shlink nicht erreichbar",
+        "es": "Shlink inaccesible"
+      },
+      "description": {
+        "en": "Shlink no longer answers (two failed reads in a row).",
+        "fr": "Shlink ne répond plus (deux lectures ratées d'affilée).",
+        "de": "Shlink antwortet nicht mehr (zwei fehlgeschlagene Abfragen in Folge).",
+        "es": "Shlink ya no responde (dos lecturas fallidas seguidas)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "multi_select",
+          "source": "devices",
+          "label": {
+            "en": "Shlink server",
+            "fr": "Serveur Shlink",
+            "de": "Shlink-Server",
+            "es": "Servidor Shlink"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Server address",
+            "fr": "Adresse du serveur",
+            "de": "Serveradresse",
+            "es": "Dirección del servidor"
+          }
+        }
+      ]
+    },
+    {
+      "key": "server_back",
+      "label": {
+        "en": "Shlink reachable again",
+        "fr": "Shlink de nouveau joignable",
+        "de": "Shlink wieder erreichbar",
+        "es": "Shlink accesible de nuevo"
+      },
+      "description": {
+        "en": "Shlink answers again after an outage.",
+        "fr": "Shlink répond de nouveau après une panne.",
+        "de": "Shlink antwortet wieder nach einem Ausfall.",
+        "es": "Shlink responde de nuevo tras una caída."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "multi_select",
+          "source": "devices",
+          "label": {
+            "en": "Shlink server",
+            "fr": "Serveur Shlink",
+            "de": "Shlink-Server",
+            "es": "Servidor Shlink"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Server address",
+            "fr": "Adresse du serveur",
+            "de": "Serveradresse",
+            "es": "Dirección del servidor"
+          }
+        },
+        {
+          "key": "down_minutes",
+          "type": "number",
+          "label": {
+            "en": "Outage (minutes)",
+            "fr": "Panne (minutes)",
+            "de": "Ausfall (Minuten)",
+            "es": "Caída (minutos)"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_link_stats",
+      "label": {
+        "en": "Read a short link",
+        "fr": "Lire un lien court",
+        "de": "Kurzlink lesen",
+        "es": "Leer un enlace corto"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Reads the visits of a short link for the next actions, and a ready-made sentence.",
+        "fr": "Lit les visites d'un lien court pour les actions suivantes, et une phrase toute prête.",
+        "de": "Liest die Besuche eines Kurzlinks für die nächsten Aktionen, und einen fertigen Satz.",
+        "es": "Lee las visitas de un enlace corto para las siguientes acciones, y una frase lista."
+      },
+      "timeout_seconds": 30,
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "Short link",
+            "fr": "Lien court",
+            "de": "Kurzlink",
+            "es": "Enlace corto"
+          },
           "required": true
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Link name",
+            "fr": "Nom du lien",
+            "de": "Name des Links",
+            "es": "Nombre del enlace"
+          }
+        },
+        {
+          "key": "short_url",
+          "type": "string",
+          "label": {
+            "en": "Short address",
+            "fr": "Adresse courte",
+            "de": "Kurzadresse",
+            "es": "Dirección corta"
+          }
+        },
+        {
+          "key": "long_url",
+          "type": "string",
+          "label": {
+            "en": "Target address",
+            "fr": "Adresse cible",
+            "de": "Zieladresse",
+            "es": "Dirección de destino"
+          }
+        },
+        {
+          "key": "visits",
+          "type": "number",
+          "label": {
+            "en": "Visits",
+            "fr": "Visites",
+            "de": "Besuche",
+            "es": "Visitas"
+          }
+        },
+        {
+          "key": "visits_today",
+          "type": "number",
+          "label": {
+            "en": "Visits today",
+            "fr": "Visites aujourd'hui",
+            "de": "Besuche heute",
+            "es": "Visitas hoy"
+          }
+        },
+        {
+          "key": "last_visit",
+          "type": "string",
+          "label": {
+            "en": "Last visit",
+            "fr": "Dernière visite",
+            "de": "Letzter Besuch",
+            "es": "Última visita"
+          }
+        },
+        {
+          "key": "sentence",
+          "type": "string",
+          "label": {
+            "en": "Sentence",
+            "fr": "Phrase",
+            "de": "Satz",
+            "es": "Frase"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "shlink_top_links",
+      "label": {
+        "en": "Shlink links",
+        "fr": "Liens Shlink",
+        "de": "Shlink-Links",
+        "es": "Enlaces Shlink"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Visits today and in all, and the most visited short links.",
+        "fr": "Visites du jour et au total, et les liens courts les plus visités.",
+        "de": "Besuche heute und insgesamt, und die meistbesuchten Kurzlinks.",
+        "es": "Visitas de hoy y en total, y los enlaces cortos más visitados."
+      },
+      "icon": "link",
+      "action_timeout_seconds": 30
     }
   ]
 }

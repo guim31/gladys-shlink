@@ -31,16 +31,20 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: src/app.js registers the handlers before connect()
+src/app.js                        every SDK handler -> the hub (also used by the tests)
+src/hub.js                        reading timer, states, new visits and outages -> scene events, views
+src/devices.js                    the server and one device per short link: features, names, values
+src/shlink/client.js              Shlink REST API v3 (fetch, X-Api-Key); errors by kind
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/widgets.js                    dashboard widget `shlink_top_links` (manifest `widgets`)
+src/texts.js                      connection, error, report and action texts (4 languages)
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/store.js, src/problems.js     /data/shlink-state.json; one log line per repeated failure
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+                                  and helpers/fakeShlink.js (checked against test/fixtures/shlink)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +74,9 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, widget, manifest texts, and
+  `docs/{en,fr,de,es}.md` with the same sections. `test/i18n.test.js` checks.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -197,6 +202,35 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Les filtres de scène ne font qu'égalité et appartenance : un seuil reste le travail d'un capteur.
 - **Les clés de widgets, de déclencheurs et d'actions sont figées une fois publiées.**
 - `gladys_version` `>=5.1.0` dès qu'il y a widgets, déclencheurs ou actions de scène.
+
+## Shlink (propre à ce dépôt)
+
+- **API** (vérifiée sur Shlink **5.1.8**, image `shlinkio/shlink:stable`, SQLite, 26/10/2026) : préfixe
+  `/rest`, clé en en-tête `X-Api-Key` (`shlink api-key:generate`, ou `INITIAL_API_KEY` au premier
+  démarrage). `GET /rest/health` sans clé (`{ status, version }`). `GET /rest/v3/visits` →
+  `{ visits: { nonOrphanVisits: { total, nonBots, bots }, orphanVisits } }`.
+  `GET /rest/v3/visits/non-orphan` et `GET /rest/v3/short-urls/<code>/visits` acceptent `startDate`
+  (**inclusif**, ISO), `excludeBots=true`, `itemsPerPage`, `page` et rendent
+  `{ visits: { data, pagination: { totalItems } } }`, les plus récentes d'abord : `itemsPerPage=1` sert
+  de compteur. `GET /rest/v3/short-urls?orderBy=visits-DESC` → `{ shortUrls: { data, pagination } }`
+  avec `visitsSummary: { total, nonBots, bots }` (Shlink 3.x : `visitsCount`).
+- **Un lien = domaine + code court** : le même code existe sur deux domaines (vérifié). `domain` vaut
+  `null` pour le domaine par défaut ; pour un autre domaine, passer `?domain=` aux visites, sinon 404
+  `short-url-not-found`. Identifiant de plateforme : `<domaine ou _>/<code encodé>`.
+- **Les visites n'ont ni identifiant ni date plus fine que la seconde** (trois visites dans la même
+  seconde, vérifié) : la nouveauté se détecte en retenant la date de la plus récente vue et le nombre de
+  visites à cette seconde (`newVisits`, `/data/shlink-state.json`). Premier passage d'un lien :
+  enregistré sans annonce.
+- `visitLocation` est `null` sans clé GeoLite2 côté Shlink : pays vide (format `countryCode`,
+  `countryName` repris de la doc, non observé en vrai). `potentialBot` est fiable pour Googlebot et
+  `facebookexternalhit`.
+- Erreurs : 401 `invalid-api-key` ; 404 problem+json typé `short-url-not-found` pour un lien, `not-found`
+  pour une route inconnue (traité comme « pas l'API Shlink »).
+- Piège de test : `docker exec … curl` avec une URL non citée coupe la requête au premier `&` ; et une
+  requête interrompue pendant une création de lien a bloqué la base SQLite de l'image (500, redémarrage
+  du conteneur nécessaire).
+- Déclencheurs « injoignable / revenu » après **deux** lectures ratées d'affilée ; une clé refusée
+  ou une redirection n'est pas une panne. Les journaux ne contiennent aucune donnée de visiteur.
 
 ## Store
 

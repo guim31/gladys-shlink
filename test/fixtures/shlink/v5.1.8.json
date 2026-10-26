@@ -1,0 +1,384 @@
+{
+  "health": {
+    "status": 200,
+    "body": {
+      "status": "pass",
+      "version": "5.1.8",
+      "links": {
+        "about": "https://shlink.io",
+        "project": "https://github.com/shlinkio/shlink"
+      }
+    }
+  },
+  "totals": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "nonOrphanVisits": {
+          "total": 7,
+          "nonBots": 5,
+          "bots": 2
+        },
+        "orphanVisits": {
+          "total": 1,
+          "nonBots": 0,
+          "bots": 1
+        }
+      }
+    }
+  },
+  "today_humans": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://s.example.test/blog",
+            "redirectUrl": "https://example.org/blog"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 5,
+          "itemsPerPage": 1,
+          "itemsInCurrentPage": 1,
+          "totalItems": 5
+        }
+      }
+    }
+  },
+  "today_all": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://s.example.test/blog",
+            "redirectUrl": "https://example.org/blog"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 7,
+          "itemsPerPage": 1,
+          "itemsInCurrentPage": 1,
+          "totalItems": 7
+        }
+      }
+    }
+  },
+  "links": {
+    "status": 200,
+    "body": {
+      "shortUrls": {
+        "data": [
+          {
+            "shortUrl": "http://s.example.test/blog",
+            "shortCode": "blog",
+            "longUrl": "https://example.org/blog",
+            "dateCreated": "2026-10-26T16:00:29+00:00",
+            "tags": ["home"],
+            "meta": {
+              "validSince": null,
+              "validUntil": null,
+              "maxVisits": null
+            },
+            "domain": null,
+            "title": "My blog",
+            "crawlable": false,
+            "forwardQuery": true,
+            "visitsSummary": {
+              "total": 3,
+              "nonBots": 2,
+              "bots": 1
+            },
+            "hasRedirectRules": false
+          },
+          {
+            "shortUrl": "http://go.example.test/news",
+            "shortCode": "news",
+            "longUrl": "https://example.org/newsletter",
+            "dateCreated": "2026-10-26T16:07:38+00:00",
+            "tags": [],
+            "meta": {
+              "validSince": null,
+              "validUntil": null,
+              "maxVisits": null
+            },
+            "domain": "go.example.test",
+            "title": "Newsletter",
+            "crawlable": false,
+            "forwardQuery": true,
+            "visitsSummary": {
+              "total": 3,
+              "nonBots": 2,
+              "bots": 1
+            },
+            "hasRedirectRules": false
+          },
+          {
+            "shortUrl": "http://s.example.test/fBXyw",
+            "shortCode": "fBXyw",
+            "longUrl": "https://example.org/doc",
+            "dateCreated": "2026-10-26T16:00:29+00:00",
+            "tags": [],
+            "meta": {
+              "validSince": null,
+              "validUntil": null,
+              "maxVisits": null
+            },
+            "domain": null,
+            "title": null,
+            "crawlable": false,
+            "forwardQuery": true,
+            "visitsSummary": {
+              "total": 1,
+              "nonBots": 1,
+              "bots": 0
+            },
+            "hasRedirectRules": false
+          },
+          {
+            "shortUrl": "http://go.example.test/blog",
+            "shortCode": "blog",
+            "longUrl": "https://example.org/same",
+            "dateCreated": "2026-10-26T16:10:39+00:00",
+            "tags": [],
+            "meta": {
+              "validSince": null,
+              "validUntil": null,
+              "maxVisits": null
+            },
+            "domain": "go.example.test",
+            "title": null,
+            "crawlable": false,
+            "forwardQuery": true,
+            "visitsSummary": {
+              "total": 0,
+              "nonBots": 0,
+              "bots": 0
+            },
+            "hasRedirectRules": false
+          },
+          {
+            "shortUrl": "http://go.example.test/promo",
+            "shortCode": "promo",
+            "longUrl": "https://example.org/promo",
+            "dateCreated": "2026-10-26T16:10:53+00:00",
+            "tags": [],
+            "meta": {
+              "validSince": null,
+              "validUntil": null,
+              "maxVisits": null
+            },
+            "domain": "go.example.test",
+            "title": null,
+            "crawlable": false,
+            "forwardQuery": true,
+            "visitsSummary": {
+              "total": 0,
+              "nonBots": 0,
+              "bots": 0
+            },
+            "hasRedirectRules": false
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 1,
+          "itemsPerPage": 100,
+          "itemsInCurrentPage": 5,
+          "totalItems": 5
+        }
+      }
+    }
+  },
+  "news_humans": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          },
+          {
+            "referer": "https://mail.example.net/inbox?u=jane",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 (Macintosh) Safari/605",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 1,
+          "itemsPerPage": 20,
+          "itemsInCurrentPage": 2,
+          "totalItems": 2
+        }
+      }
+    }
+  },
+  "news_all": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          },
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "facebookexternalhit/1.1",
+            "visitLocation": null,
+            "potentialBot": true,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          },
+          {
+            "referer": "https://mail.example.net/inbox?u=jane",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 (Macintosh) Safari/605",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 1,
+          "itemsPerPage": 20,
+          "itemsInCurrentPage": 3,
+          "totalItems": 3
+        }
+      }
+    }
+  },
+  "news_since": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://go.example.test/news",
+            "redirectUrl": "https://example.org/newsletter"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 2,
+          "itemsPerPage": 1,
+          "itemsInCurrentPage": 1,
+          "totalItems": 2
+        }
+      }
+    }
+  },
+  "news_wrong_domain": {
+    "status": 404,
+    "body": {
+      "shortCode": "news",
+      "title": "Short URL not found",
+      "type": "https://shlink.io/api/error/short-url-not-found",
+      "status": 404,
+      "detail": "No URL found with short code \"news\""
+    }
+  },
+  "blog_humans": {
+    "status": 200,
+    "body": {
+      "visits": {
+        "data": [
+          {
+            "referer": "",
+            "date": "2026-10-26T16:10:59+00:00",
+            "userAgent": "Mozilla/5.0 Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://s.example.test/blog",
+            "redirectUrl": "https://example.org/blog"
+          },
+          {
+            "referer": "https://news.example.com/post",
+            "date": "2026-10-26T16:00:36+00:00",
+            "userAgent": "Mozilla/5.0 (X11; Linux x86_64) Firefox/131.0",
+            "visitLocation": null,
+            "potentialBot": false,
+            "visitedUrl": "http://localhost:8080/blog",
+            "redirectUrl": "https://example.org/blog"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "pagesCount": 1,
+          "itemsPerPage": 20,
+          "itemsInCurrentPage": 2,
+          "totalItems": 2
+        }
+      }
+    }
+  },
+  "missing": {
+    "status": 404,
+    "body": {
+      "shortCode": "nope",
+      "title": "Short URL not found",
+      "type": "https://shlink.io/api/error/short-url-not-found",
+      "status": 404,
+      "detail": "No URL found with short code \"nope\""
+    }
+  },
+  "not_api": {
+    "status": 404,
+    "body": {
+      "title": "Not Found",
+      "type": "https://shlink.io/api/error/not-found",
+      "status": 404,
+      "detail": "Cannot GET http://localhost:8080/v9/visits!"
+    }
+  },
+  "bad_key": {
+    "status": 401,
+    "body": {
+      "title": "Invalid API key",
+      "type": "https://shlink.io/api/error/invalid-api-key",
+      "status": 401,
+      "detail": "Provided API key does not exist or is invalid."
+    }
+  },
+  "_source": {
+    "status": 0,
+    "body": "Recorded from a real Shlink 5.1.8 (shlinkio/shlink:stable, SQLite) in Docker on 2026-10-26: two domains, visits by curl with browser and bot User-Agents. Invented domains and referers."
+  }
+}
