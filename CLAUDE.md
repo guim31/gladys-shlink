@@ -229,6 +229,7 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Piège de test : `docker exec … curl` avec une URL non citée coupe la requête au premier `&` ; et une
   requête interrompue pendant une création de lien a bloqué la base SQLite de l'image (500, redémarrage
   du conteneur nécessaire).
+- Une visite de la même seconde : Shlink trie par id décroissant, les déjà vues sont en fin de groupe. Les `seen` sont oubliés quand un lien quitte Gladys, quand l’option robots change et quand l’adresse change (avec l’état de panne). Une erreur sur un seul lien ne fait pas tomber le serveur.
 - Déclencheurs « injoignable / revenu » après **deux** lectures ratées d'affilée ; une clé refusée
   ou une redirection n'est pas une panne. Les journaux ne contiennent aucune donnée de visiteur.
 

@@ -165,7 +165,8 @@ test('outage: unreachable after two failed reads, back with its duration', async
   await tick(world);
   const back = world.fake.sceneEvents.at(-1);
   assert.equal(back.key, TRIGGERS.BACK);
-  assert.equal(back.data.down_minutes, 6);
+  // From the first failed read.
+  assert.equal(back.data.down_minutes, 7);
   assert.equal(stateOf(world, reachable).state, 1);
   assert.deepEqual(world.fake.connectionStatus, { connected: true });
 });
@@ -339,4 +340,76 @@ test('device payloads: names in the chosen language, stable external ids', async
   assert.equal(server.external_id, 'ext:test-integration:server:shlink');
   assert.equal(server.features[0].name, 'Accesible');
   assert.ok(new Store('/nonexistent'));
+});
+
+test('same-second visits: the new one is announced with its own details', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await createDevices(world);
+  const at = world.clock.time + 5_000;
+  world.shlink.visit('blog', at, { country: { code: 'FR', name: 'France' } });
+  await tick(world);
+  world.shlink.visit('blog', at, { country: { code: 'US', name: 'United States' } });
+  await tick(world);
+  assert.deepEqual(
+    visitEvents(world).map((e) => e.data.country_code),
+    ['FR', 'US'],
+  );
+});
+
+test('a link removed from Gladys then added again announces no past visit', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await createDevices(world);
+  const blog = idsOf(world, 'blog').device;
+  const device = world.gladys.devices.find((d) => d.external_id === blog);
+  await world.fake.deviceDeleted(device);
+  await tick(world);
+  world.shlink.visit('blog', world.clock.time);
+  world.shlink.visit('blog', world.clock.time);
+  await tick(world);
+  await world.fake.deviceCreated(device);
+  await tick(world);
+  assert.equal(visitEvents(world).length, 0);
+});
+
+test('turning the bots option on announces no past bot visit', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await createDevices(world);
+  world.shlink.visit('blog', world.clock.time, { bot: true });
+  await tick(world);
+  await world.hub.reconfigure({ ...world.hub.config, includeBots: true });
+  await tick(world);
+  assert.equal(visitEvents(world).length, 0);
+  world.shlink.visit('blog', world.clock.time, { bot: true });
+  await tick(world);
+  assert.equal(visitEvents(world).length, 1);
+});
+
+test('a wrong address then the right one is no outage of the server', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await createDevices(world);
+  const good = world.hub.config;
+  await world.hub.reconfigure({ ...good, url: 'http://192.0.2.99:8080', apiKey: 'other' });
+  world.shlink.down = true;
+  await tick(world);
+  await tick(world);
+  world.shlink.down = false;
+  await world.hub.reconfigure(good);
+  assert.ok(!world.fake.sceneEvents.some((e) => e.key === TRIGGERS.BACK));
+});
+
+test('one link failing does not make the server unreachable', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await createDevices(world);
+  const request = world.shlink.request;
+  world.hub.client.request = async (url, options) =>
+    url.includes('/fBXyw/') ? { status: 500, body: '{}' } : request(url, options);
+  await tick(world);
+  await tick(world);
+  assert.deepEqual(world.fake.connectionStatus, { connected: true });
+  assert.ok(!world.fake.sceneEvents.some((e) => e.key === TRIGGERS.UNREACHABLE));
 });

@@ -100,8 +100,10 @@ export function newVisits(items, seen) {
     return { fresh: [], seen: next };
   }
   const fresh = items.filter((visit) => visit.at > seen.at);
+  // Newest first within a second too (Shlink orders by id): the ones seen
+  // are at the end.
   const same = items.filter((visit) => visit.at === seen.at);
-  fresh.push(...same.slice(seen.count));
+  fresh.push(...same.slice(0, Math.max(0, same.length - seen.count)));
   return { fresh: fresh.reverse(), seen: next };
 }
 
@@ -177,6 +179,18 @@ export class ShlinkHub {
     const languageChanged = this.signature !== null && previous.language !== config.language;
     this.config = config;
     const signature = JSON.stringify([config.url, config.apiKey]);
+    const serverChanged =
+      this.signature !== null && JSON.stringify([previous.url]) !== JSON.stringify([config.url]);
+    if (serverChanged || (this.signature !== null && previous.includeBots !== config.includeBots)) {
+      // Another server, or other visits watched: start again without
+      // announcing the past visits.
+      this.saved.links = {};
+    }
+    if (serverChanged) {
+      // An outage of the previous address (a typo, often) is not one of this server.
+      delete this.saved.reachable;
+      delete this.saved.downSince;
+    }
     if (signature !== this.signature) {
       this.signature = signature;
       this.client =
@@ -300,7 +314,10 @@ export class ShlinkHub {
     for (const link of list.links) {
       const key = linkKey(link);
       const known = this.links.get(key);
-      next.set(key, known ? { ...known, ...link } : blankLink(link));
+      const created = this.isCreated(linkIds(this.gladys, link).device);
+      // Only the added links are read one by one: the figures of the others
+      // (read once by the scene action) would go stale.
+      next.set(key, known && created ? { ...known, ...link } : blankLink(link));
     }
     this.links = next;
     if (full) {
@@ -321,13 +338,19 @@ export class ShlinkHub {
       }
       try {
         await this.readLink(client, link, { start, events });
+        this.problems.recover(`link ${linkKey(link)}`, `${linkLabel(link)} read again`);
       } catch (err) {
-        if (!(err instanceof ShlinkError && err.kind === ERROR_KINDS.NOT_FOUND)) {
+        if (!(err instanceof ShlinkError)) {
           throw err;
         }
-        // Deleted since the last list: forget it, list again next time.
-        this.links.delete(linkKey(link));
-        this.linksAt = 0;
+        if (err.kind === ERROR_KINDS.NOT_FOUND) {
+          // Deleted since the last list: forget it, list again next time.
+          this.links.delete(linkKey(link));
+          this.linksAt = 0;
+        } else {
+          // One link failing is not the server down: the others go on.
+          this.problems.fail(`link ${linkKey(link)}`, `${linkLabel(link)}: ${err.message}`);
+        }
       }
     }
   }
@@ -373,9 +396,11 @@ export class ShlinkHub {
     for (const { link, items } of events) {
       dirty = (await this.announceVisits(link, items)) || dirty;
     }
-    // A link deleted in Shlink is forgotten.
+    // A link deleted in Shlink, or removed from Gladys, is forgotten: added
+    // again, it starts without announcing the past visits.
     for (const key of Object.keys(this.saved.links)) {
-      if (!this.links.has(key)) {
+      const link = this.links.get(key);
+      if (!link || !this.isCreated(linkIds(this.gladys, link).device)) {
         delete this.saved.links[key];
         dirty = true;
       }
@@ -397,6 +422,9 @@ export class ShlinkHub {
     }
     if (DOWN_KINDS.has(err.kind)) {
       this.failures += 1;
+      if (this.failures === 1) {
+        this.firstFailureAt = this.now();
+      }
       if (this.failures >= FAILURES_FOR_DOWN && (await this.setReachable(false))) {
         this.store.save(this.saved);
       }
@@ -419,7 +447,7 @@ export class ShlinkHub {
     const now = this.now();
     const data = { device: serverIds(this.gladys).device, host: hostOf(this.config.url) };
     if (!reachable) {
-      this.saved.downSince = now;
+      this.saved.downSince = this.firstFailureAt ?? now;
       if (was === true) {
         logger.info('Shlink is unreachable');
         await this.fire(TRIGGERS.UNREACHABLE, data);
@@ -649,7 +677,7 @@ export class ShlinkHub {
 
   /** Read one link now when it is not added to Gladys (the scene action). */
   async readOne(link) {
-    if (link.today === null && this.client) {
+    if (this.client && !this.isCreated(linkIds(this.gladys, link).device)) {
       await this.readLink(this.client, link, { start: startOfDay(this.now()), events: [] });
     }
   }

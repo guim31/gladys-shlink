@@ -231,6 +231,10 @@ export class ShlinkClient {
     const data = await this.get('/v3/visits');
     const links = data.visits?.nonOrphanVisits;
     if (!links || typeof links !== 'object') {
+      // Before Shlink 3.5: `{ visits: { visitsCount, orphanVisitsCount } }`.
+      if (data.visits && 'visitsCount' in data.visits) {
+        return { visits: count(data.visits.visitsCount), bots: 0 };
+      }
       throw new ShlinkError(ERROR_KINDS.NOT_SHLINK, 'The answer is not Shlink visit totals');
     }
     // Shlink 3.x had no bot split: `total` only.

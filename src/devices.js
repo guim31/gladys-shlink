@@ -94,7 +94,8 @@ export function parseLinkKey(gladys, externalId) {
     return null;
   }
   const key = externalId.slice(prefix.length);
-  return /^[^/:]+\/[^/:]+$/.test(key) ? key : null;
+  // The domain may hold a port; the code is URI-encoded (no `/`).
+  return /^[^/]+\/[^/]+$/.test(key) ? key : null;
 }
 
 /** What a person reads for a link: its title, or its short address. */
