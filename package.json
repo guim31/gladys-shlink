@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-shlink",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Shlink short link visits in Gladys Assistant: devices, scene triggers, widget.",
   "type": "module",
   "main": "index.js",
   "scripts": {

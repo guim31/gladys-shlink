@@ -30,6 +30,20 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- the **API key** of the Shlink server, stored by Gladys in the integration
+  configuration (never written to `/data`, never logged); it is only sent to
+  the address configured, and redirects are not followed so it never reaches
+  another host;
+- the visits read from Shlink (date, country, referring site, bot flag): kept
+  in memory and passed to the scene events, never logged; the referring site
+  is reduced to its host;
+- `/data/shlink-state.json`: what the scene triggers remember (the date of the
+  newest visit seen per followed link, whether the server was reachable; no
+  secret, no visitor data);
+- network: HTTP(S) requests to Shlink, nothing else; no port is opened.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and Shlink itself.
